@@ -73,7 +73,10 @@ def derive_adjusted_metrics(user_values, font_metrics, baseline=BASELINE_METRICS
     horiz_ratio = (upm_ratio + total_height_ratio) / 2.0
 
     adjusted = {}
-    adjusted["scale_pct"] = float(user_values["scale_pct"]) * total_height_ratio
+    # Keep the caller's requested scale exactly: they are tuning the glyph
+    # contour size by hand, so we do not second-guess it.  Only spacing and
+    # nudges get normalised per-font.
+    adjusted["scale_pct"] = float(user_values["scale_pct"])
     adjusted["lsb"] = round(float(user_values["lsb"]) * horiz_ratio)
     adjusted["rsb"] = round(float(user_values["rsb"]) * horiz_ratio)
     adjusted["x_nudge"] = round(float(user_values["x_nudge"]) * horiz_ratio)

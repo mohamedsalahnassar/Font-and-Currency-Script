@@ -80,7 +80,7 @@ The script will recurse under `--fonts-dir`, process any `.ttf/.otf`, and write 
 | `--x N` | Final **x nudge** after spacing (units). | `0` |
 | `--y N` | Final **y nudge** after spacing (units). | `0` |
 
-> **Units:** `--lsb`, `--rsb`, `--x`, `--y` use the font’s units-per-em (UPM). If your font is UPM 2048 (not 1000), the same numeric values appear proportionally smaller on screen — adjust accordingly.
+> **Units:** `--lsb`, `--rsb`, `--x`, `--y` use the font’s units-per-em (UPM). If your font is UPM 2048 (not 1000), the same numeric values appear proportionally smaller on screen — adjust accordingly. The Python injector automatically rescales spacing/nudge numbers for each font based on its ascent, descent, UPM and underline metrics so that tweaks dialled in for the reference font carry over to other families. The `--scale` percentage stays exactly as you specify it.
 
 ### What the Python script does (per glyph)
 

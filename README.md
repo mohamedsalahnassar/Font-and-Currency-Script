@@ -54,10 +54,16 @@ Optional (to silence FontForge plugin warnings): the wrapper already sets `FONTF
   --sar-svg ./assets/SAR.svg \
   --aed-svg ./assets/AED.svg \
   --out-dir ./fonts_out \
-  --sar-code U+20C1 --aed-code U+20C3 \
-  --scale 80 --lsb 50 --rsb 100 \
-  --x 15 --y 20
+  --sar-code U+20C1 \
+  --aed-code U+20C3 \
+  --scale 80 \
+  --lsb 50 \
+  --rsb 100 \
+  --x 15 \
+  --y 20
 ```
+
+> **Tip:** Every line above ends with a backslash except the last one. If your shell reports `command not found: --ref-code`, the newline escape was lost—either keep the trailing `\` characters or paste the command on a single line.
 
 The script will recurse under `--fonts-dir`, process any `.ttf/.otf`, and write results to `--out-dir` (originals untouched). Each output is named `<original>-injected.ttf|otf`.
 
@@ -123,10 +129,17 @@ native wherever you drop them.
   --sar-svg ./assets/SAR.svg \
   --aed-svg ./assets/AED.svg \
   --out-dir ./fonts_out \
-  --sar-code U+20C1 --aed-code U+20C3 \
-  --scale 80 --lsb 50 --rsb 100 \
-  --x 15 --y 20 \
-  --ref-code U+0030 --vfit top --top-pad 0 --bottom-pad 0
+  --sar-code U+20C1 \
+  --aed-code U+20C3 \
+  --scale 80 \
+  --lsb 50 \
+  --rsb 100 \
+  --x 15 \
+  --y 20 \
+  --ref-code U+0030 \
+  --vfit top \
+  --top-pad 0 \
+  --bottom-pad 0
 ```
 
 ---

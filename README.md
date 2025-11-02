@@ -63,7 +63,7 @@ Optional (to silence FontForge plugin warnings): the wrapper already sets `FONTF
   --y 20
 ```
 
-> **Tip:** Every line above ends with a backslash except the last one. If your shell reports `command not found: --ref-code`, the newline escape was lost—either keep the trailing `\` characters or paste the command on a single line.
+> **Tip:** Every line above ends with a backslash except the last one. If your shell reports `command not found: --ref-code`, the newline escape was lost—either keep the trailing `\` characters or paste the command on a single line. Prefer `--flag=value` syntax? The wrapper now accepts either `--ref-code U+0030` or `--ref-code=U+0030` (same for every other flag).
 
 The script will recurse under `--fonts-dir`, process any `.ttf/.otf`, and write results to `--out-dir` (originals untouched). Each output is named `<original>-injected.ttf|otf`.
 

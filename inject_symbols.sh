@@ -41,6 +41,22 @@ while [[ $# -gt 0 ]]; do
     --vfit)          VFIT="${2:-top}"; shift 2;;
     --top-pad)       TOP_PAD="${2:-0}"; shift 2;;
     --bottom-pad)    BOTTOM_PAD="${2:-0}"; shift 2;;
+    --fonts-dir=*)     FONTS_DIR="${1#*=}"; shift;;
+    --out-dir=*)       OUT_DIR="${1#*=}"; shift;;
+    --sar-svg=*)       SAR_SVG="${1#*=}"; shift;;
+    --aed-svg=*)       AED_SVG="${1#*=}"; shift;;
+    --sar-code=*)      SAR_CODE="${1#*=}"; shift;;
+    --aed-code=*)      AED_CODE="${1#*=}"; shift;;
+    --rename-suffix=*) RENAME_SUFFIX="${1#*=}"; shift;;
+    --scale=*)         SCALE="${1#*=}"; shift;;
+    --lsb=*)           LSB="${1#*=}"; shift;;
+    --rsb=*)           RSB="${1#*=}"; shift;;
+    --x=*)             XNUDGE="${1#*=}"; shift;;
+    --y=*)             YNUDGE="${1#*=}"; shift;;
+    --ref-code=*)      REF_CODE="${1#*=}"; shift;;
+    --vfit=*)          VFIT="${1#*=}"; shift;;
+    --top-pad=*)       TOP_PAD="${1#*=}"; shift;;
+    --bottom-pad=*)    BOTTOM_PAD="${1#*=}"; shift;;
     -h|--help)       usage; exit 0;;
     *) die "Unknown arg: $1 (use --help)";;
   esac

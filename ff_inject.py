@@ -81,37 +81,31 @@ def vertical_autofit(g, ref_g, mode="top", top_pad=0, bottom_pad=0):
         g.transform(psMat.translate(0, dy))
 
 
-def apply_metrics_exact(g, scale_pct, target_lsb, target_rsb):
+def apply_metrics_exact(g, target_lsb, target_rsb):
     """
     Deterministic horizontal spacing:
-      1) base scale
-      2) normalize xmin -> 0
-      3) width = LSB + bbox_w + RSB
-      4) translate outline by +LSB
-      5) correction pass to hit exact LSB/RSB
+      1) normalize xmin -> 0
+      2) width = LSB + bbox_w + RSB
+      3) translate outline by +LSB
+      4) correction pass to hit exact LSB/RSB
     """
     m0 = measure(g); log(f"[FF] BEFORE  lsb={m0['lsb']:.2f} rsb={m0['rsb']:.2f} width={m0['width']:.2f}")
 
-    # 1) base scale
-    s = float(scale_pct) / 100.0
-    if abs(s - 1.0) > 1e-6:
-        g.transform(psMat.scale(s, s))
-
-    # 2) normalize xmin -> 0
+    # 1) normalize xmin -> 0
     xmin, _, xmax, _ = bbox(g)
     if abs(xmin) > 0.001:
         g.transform(psMat.translate(-xmin, 0))
 
-    # 3) enforce RSB via width
+    # 2) enforce RSB via width
     xmin2, _, xmax2, _ = bbox(g)  # xmin2 ≈ 0
     box_w = xmax2 - xmin2
     g.width = int(round(float(target_lsb) + box_w + float(target_rsb)))
 
-    # 4) shift outline to get LSB
+    # 3) shift outline to get LSB
     if int(target_lsb) != 0:
         g.transform(psMat.translate(int(target_lsb), 0))
 
-    # 5) correction pass
+    # 4) correction pass
     m1 = measure(g)
     dx_l = int(round(float(target_lsb) - m1["lsb"]))
     if dx_l:
@@ -131,6 +125,11 @@ def import_svg_at(fnt, codepoint, svg_path, base_scale, lsb, rsb,
     g.importOutlines(svg_path)
     safe_cleanup(g)
 
+    # Base scale before vertical alignment
+    s = float(base_scale) / 100.0
+    if abs(s - 1.0) > 1e-6:
+        g.transform(psMat.scale(s, s))
+
     # Vertical auto-fit (before horizontal spacing)
     try:
         ref_g = fnt[ref_code]
@@ -140,7 +139,7 @@ def import_svg_at(fnt, codepoint, svg_path, base_scale, lsb, rsb,
         vertical_autofit(g, ref_g, vfit_mode.lower(), float(top_pad), float(bottom_pad))
 
     # Horizontal spacing
-    apply_metrics_exact(g, scale_pct=base_scale, target_lsb=lsb, target_rsb=rsb)
+    apply_metrics_exact(g, target_lsb=lsb, target_rsb=rsb)
 
     # Final nudges
     dx = int(float(x_nudge)); dy = int(float(y_nudge))

@@ -120,6 +120,8 @@ native wherever you drop them.
   - `baseline` locks the bottom of the symbol to the reference baseline (plus optional padding).
 - `--top-pad` / `--bottom-pad` let you reserve breathing room when `top`/`baseline` would otherwise touch.
 - Final `--x` / `--y` nudges still run after auto-fit so you can micro-adjust optical balance without re-exporting SVGs.
+- `--scale` applies *before* auto-fit, so the glyph grows/shrinks to your percentage and is then aligned to the reference. Remember
+  that FontForge uses a Y-up coordinate system: positive `--y` values move the symbol upward; negative values drop it toward the baseline.
 
 ### Updated example
 

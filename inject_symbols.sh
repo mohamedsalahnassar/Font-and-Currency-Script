@@ -7,19 +7,21 @@ usage() {
   cat <<'USAGE'
 Usage:
   ./inject_symbols.sh --fonts-dir <dir> --sar-svg <file.svg> --aed-svg <file.svg> --out-dir <dir>
-                      [--sar-code U+20C1] [--aed-code U+E000]
+                      [--sar-code U+20C1] [--aed-code U+20C3]
                       [--rename-suffix "-ENBD"]
                       [--scale 67] [--lsb 53] [--rsb 106]
                       [--x 0] [--y 0]
+                      [--ref-code U+0030] [--vfit top|center|baseline] [--top-pad 0] [--bottom-pad 0]
 USAGE
 }
 
 FONTS_DIR=""; OUT_DIR=""
 SAR_SVG=""; AED_SVG=""
-SAR_CODE="U+20C1"; AED_CODE="U+E000"
+SAR_CODE="U+20C1"; AED_CODE="U+20C3"
 RENAME_SUFFIX=""
 SCALE="67"; LSB="53"; RSB="106"
 XNUDGE="0"; YNUDGE="0"
+REF_CODE="U+0030"; VFIT="top"; TOP_PAD="0"; BOTTOM_PAD="0"
 
 while [[ $# -gt 0 ]]; do
   case "$1" in
@@ -35,6 +37,26 @@ while [[ $# -gt 0 ]]; do
     --rsb)           RSB="${2:-106}"; shift 2;;
     --x)             XNUDGE="${2:-0}"; shift 2;;
     --y)             YNUDGE="${2:-0}"; shift 2;;
+    --ref-code)      REF_CODE="${2:-U+0030}"; shift 2;;
+    --vfit)          VFIT="${2:-top}"; shift 2;;
+    --top-pad)       TOP_PAD="${2:-0}"; shift 2;;
+    --bottom-pad)    BOTTOM_PAD="${2:-0}"; shift 2;;
+    --fonts-dir=*)     FONTS_DIR="${1#*=}"; shift;;
+    --out-dir=*)       OUT_DIR="${1#*=}"; shift;;
+    --sar-svg=*)       SAR_SVG="${1#*=}"; shift;;
+    --aed-svg=*)       AED_SVG="${1#*=}"; shift;;
+    --sar-code=*)      SAR_CODE="${1#*=}"; shift;;
+    --aed-code=*)      AED_CODE="${1#*=}"; shift;;
+    --rename-suffix=*) RENAME_SUFFIX="${1#*=}"; shift;;
+    --scale=*)         SCALE="${1#*=}"; shift;;
+    --lsb=*)           LSB="${1#*=}"; shift;;
+    --rsb=*)           RSB="${1#*=}"; shift;;
+    --x=*)             XNUDGE="${1#*=}"; shift;;
+    --y=*)             YNUDGE="${1#*=}"; shift;;
+    --ref-code=*)      REF_CODE="${1#*=}"; shift;;
+    --vfit=*)          VFIT="${1#*=}"; shift;;
+    --top-pad=*)       TOP_PAD="${1#*=}"; shift;;
+    --bottom-pad=*)    BOTTOM_PAD="${1#*=}"; shift;;
     -h|--help)       usage; exit 0;;
     *) die "Unknown arg: $1 (use --help)";;
   esac
@@ -57,6 +79,7 @@ abspath(){ local p="$1"; if [ -d "$p" ]; then (cd "$p" && pwd -P); else (cd "$(d
 FONTS_DIR="$(abspath "$FONTS_DIR")"; OUT_DIR="$(abspath "$OUT_DIR")"; SAR_SVG="$(abspath "$SAR_SVG")"; AED_SVG="$(abspath "$AED_SVG")"
 mkdir -p "$OUT_DIR"
 
+# FontForge Python availability (suppress plugin discovery noise)
 env FONTFORGE_NO_PLUGINS=1 fontforge -lang=py -c 'import fontforge' >/dev/null 2>&1 \
   || die "FontForge lacks Python support; reinstall (brew install fontforge)"
 
@@ -68,11 +91,12 @@ while IFS= read -r -d '' font; do
   echo "[*] Inject: $base → $(basename "$out")"
   if env FONTFORGE_NO_PLUGINS=1 fontforge -lang=py -script "$PY_SCRIPT" \
       "$font" "$SAR_DEC" "$SAR_SVG" "$AED_DEC" "$AED_SVG" "$out" "$RENAME_SUFFIX" \
-      "$SCALE" "$LSB" "$RSB" "$XNUDGE" "$YNUDGE"; then
+      "$SCALE" "$LSB" "$RSB" "$XNUDGE" "$YNUDGE" "$REF_CODE" "$VFIT" "$TOP_PAD" "$BOTTOM_PAD"; then
     [[ -f "$out" ]] && echo "[+] OK: $(basename "$out")" || echo "[-] No output for $base"
   else
     echo "[-] Failed for $base"
   fi
+
 done < <(find "$FONTS_DIR" -type f \( -iname "*.ttf" -o -iname "*.otf" \) -print0)
 
 [[ $found -eq 1 ]] || echo "[!] No .ttf/.otf files found under $FONTS_DIR"

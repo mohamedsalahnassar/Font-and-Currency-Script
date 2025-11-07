@@ -56,10 +56,14 @@ Optional (to silence FontForge plugin warnings): the wrapper already sets `FONTF
   --out-dir ./fonts_out \
   --sar-code U+20C1 \
   --aed-code U+20C3 \
-  --rename-suffix "-ENBD" \
-  --scale 80 --lsb 50 --rsb 100 \
-  --x -10 --y 0
+  --scale 80 \
+  --lsb 50 \
+  --rsb 100 \
+  --x 15 \
+  --y 20
 ```
+
+> **Tip:** Every line above ends with a backslash except the last one. If your shell reports `command not found: --ref-code`, the newline escape was lost—either keep the trailing `\` characters or paste the command on a single line. Prefer `--flag=value` syntax? The wrapper now accepts either `--ref-code U+0030` or `--ref-code=U+0030` (same for every other flag).
 
 The script will recurse under `--fonts-dir`, process any `.ttf/.otf`, and write results to `--out-dir` (originals untouched). Each output is named `<original>-injected.ttf|otf`.
 
@@ -79,6 +83,9 @@ The script will recurse under `--fonts-dir`, process any `.ttf/.otf`, and write 
 | `--rsb N` | Target **right** side bearing (font units). | `106` |
 | `--x N` | Final **x nudge** after spacing (units). | `0` |
 | `--y N` | Final **y nudge** after spacing (units). | `0` |
+| `--ref-code U+XXXX` | Glyph used as the vertical reference for auto-fit (e.g., `U+0030` = digit "0"). | `U+0030` |
+| `--vfit top|center|baseline` | How to align SAR/AED vertically relative to the reference glyph. | `top` |
+| `--top-pad N` / `--bottom-pad N` | Extra vertical breathing room when auto-fitting (font units). | `0` / `0` |
 
 > **Units:** `--lsb`, `--rsb`, `--x`, `--y` use the font’s units-per-em (UPM). If your font is UPM 2048 (not 1000), the same numeric values appear proportionally smaller on screen — adjust accordingly. The Python injector automatically rescales spacing/nudge numbers for each font based on its ascent, descent, UPM and underline metrics so that tweaks dialled in for the reference font carry over to other families. The `--scale` percentage stays exactly as you specify it.
 
@@ -96,6 +103,46 @@ The script will recurse under `--fonts-dir`, process any `.ttf/.otf`, and write 
 6. Generate the new font at the output path you specified.
 
 It prints BEFORE/AFTER metrics so you can verify that your `LSB/RSB` actually took effect.
+
+---
+
+## Vertical Auto-Fit (why & how)
+
+Currency marks rarely share the same cap-height or alignment across families. Without intervention, they land at different tops or
+sink below the baseline depending on the font. The injector now auto-fits both SAR and AED against a reference glyph so they look
+native wherever you drop them.
+
+- `--ref-code U+XXXX` picks the glyph whose vertical metrics you trust. The default `U+0030` targets the Latin digit “0”, but you
+  can swap to `U+0660` (Arabic-Indic zero) or a custom placeholder to match another script.
+- `--vfit top|center|baseline` tells the script how to align the symbol after scaling:
+  - `top` (default) keeps the top of the symbol flush with the reference’s top (minus optional padding).
+  - `center` vertically centers the symbol within the reference glyph’s box.
+  - `baseline` locks the bottom of the symbol to the reference baseline (plus optional padding).
+- `--top-pad` / `--bottom-pad` let you reserve breathing room when `top`/`baseline` would otherwise touch.
+- Final `--x` / `--y` nudges still run after auto-fit so you can micro-adjust optical balance without re-exporting SVGs.
+- `--scale` applies *before* auto-fit, so the glyph grows/shrinks to your percentage and is then aligned to the reference. Remember
+  that FontForge uses a Y-up coordinate system: positive `--y` values move the symbol upward; negative values drop it toward the baseline.
+
+### Updated example
+
+```bash
+./inject_symbols.sh \
+  --fonts-dir ./fonts_in \
+  --sar-svg ./assets/SAR.svg \
+  --aed-svg ./assets/AED.svg \
+  --out-dir ./fonts_out \
+  --sar-code U+20C1 \
+  --aed-code U+20C3 \
+  --scale 80 \
+  --lsb 50 \
+  --rsb 100 \
+  --x 15 \
+  --y 20 \
+  --ref-code U+0030 \
+  --vfit top \
+  --top-pad 0 \
+  --bottom-pad 0
+```
 
 ---
 
